@@ -27,5 +27,4 @@
 - If the user base is increasing then switching to Microservices is recommended
 
 *** 
-## Architecture
-![img_1.png](img_1.png)
+
