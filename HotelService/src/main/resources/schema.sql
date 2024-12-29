@@ -1,0 +1,6 @@
+CREATE TABLE IF NOT EXISTS hotels (
+    id VARCHAR(400) PRIMARY KEY,
+    name VARCHAR(100) NOT NULL,
+    location VARCHAR(300),
+    about VARCHAR(500)
+);
