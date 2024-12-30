@@ -6,3 +6,7 @@ eureka:
     fetch-registry: false # indicates whether this client should fetch eureka registry information from eureka server
 server:
   port: 8761
+
+spring:
+  application:
+    name:SERVICE-REGISTRY

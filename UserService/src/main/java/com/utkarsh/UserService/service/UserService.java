@@ -9,7 +9,6 @@ import com.utkarsh.UserService.repository.UserRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 import com.utkarsh.UserService.utility.TypeConverter;
@@ -20,9 +19,9 @@ import java.util.*;
 public class UserService implements IUserService {
     private static final Logger LOGGER = LoggerFactory.getLogger(UserService.class);
     private static final String NO_USER_FOUND_FOR_ID = "No user found for id: ";
-    private static final String USER_SERVICE_HOST = "http://RATINGSERVICE/";
+    private static final String USER_SERVICE_HOST = "http://RATING-SERVICE/";
     private static final String USER_RATING_ENDPOINT = "ratings/users/";
-    private static final String HOTEL_SERVICE_HOST = "http://HOTELSERVICE/";
+    private static final String HOTEL_SERVICE_HOST = "http://HOTEL-SERVICE/";
     private static final String HOTEL_ENDPOINT = "hotels/";
 
     private final UserRepository userRepository;
