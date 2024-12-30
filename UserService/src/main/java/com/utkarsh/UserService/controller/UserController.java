@@ -31,6 +31,7 @@ public class UserController {
 
     @GetMapping("/{userId}")
     public ResponseEntity<User> getSingleUser(@PathVariable(name = "userId") String userId) {
+        LOGGER.info("getting user info for userId: {}", userId);
         return ResponseEntity.status(HttpStatus.OK).body(userService.getUserById(userId));
     }
 

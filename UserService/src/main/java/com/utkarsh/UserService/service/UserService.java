@@ -1,14 +1,18 @@
 package com.utkarsh.UserService.service;
 
+import com.utkarsh.UserService.entity.Hotel;
 import com.utkarsh.UserService.entity.Rating;
 import com.utkarsh.UserService.entity.User;
 import com.utkarsh.UserService.exception.ResourceNotFoundException;
+import com.utkarsh.UserService.external.service.HotelService;
 import com.utkarsh.UserService.repository.UserRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
+import com.utkarsh.UserService.utility.TypeConverter;
 
 import java.util.*;
 
@@ -16,13 +20,19 @@ import java.util.*;
 public class UserService implements IUserService {
     private static final Logger LOGGER = LoggerFactory.getLogger(UserService.class);
     private static final String NO_USER_FOUND_FOR_ID = "No user found for id: ";
-    private static final String USER_RATING_ENDPOINT = "http://localhost:8083/ratings/users/";
+    private static final String USER_SERVICE_HOST = "http://RATINGSERVICE/";
+    private static final String USER_RATING_ENDPOINT = "ratings/users/";
+    private static final String HOTEL_SERVICE_HOST = "http://HOTELSERVICE/";
+    private static final String HOTEL_ENDPOINT = "hotels/";
+
     private final UserRepository userRepository;
+    private final HotelService hotelService;
     private final RestTemplate restTemplate;
 
     @Autowired
-    public UserService(UserRepository userRepository, RestTemplate restTemplate) {
+    public UserService(UserRepository userRepository, HotelService hotelService, RestTemplate restTemplate) {
         this.userRepository = userRepository;
+        this.hotelService = hotelService;
         this.restTemplate = restTemplate;
     }
 
@@ -41,8 +51,16 @@ public class UserService implements IUserService {
     @Override
     public User getUserById(String userId) {
         User user = userRepository.findById(userId).orElseThrow(() -> new ResourceNotFoundException(NO_USER_FOUND_FOR_ID + userId));
-        List<Rating> response = restTemplate.getForObject(USER_RATING_ENDPOINT + userId, ArrayList.class);
-        user.setRatings(response);
+        ArrayList response = restTemplate.getForObject(USER_SERVICE_HOST + USER_RATING_ENDPOINT + userId, ArrayList.class);
+        List<Rating> userRatings = response.stream().map(res -> TypeConverter.convertLinkedHashMapToRating((LinkedHashMap<String, Object>) res)).toList();
+        List<Rating> updatedUserRatings = userRatings.stream().map(rating -> {
+//            ResponseEntity<Hotel> forEntity = restTemplate.getForEntity(HOTEL_SERVICE_HOST + HOTEL_ENDPOINT + rating.getHotelId(), Hotel.class);
+//            Hotel hotel = forEntity.getBody();
+            Hotel hotel = hotelService.getHotel(rating.getHotelId());
+            rating.setHotel(hotel);
+            return rating;
+        }).toList();
+        user.setRatings(userRatings);
         return user;
     }
 
