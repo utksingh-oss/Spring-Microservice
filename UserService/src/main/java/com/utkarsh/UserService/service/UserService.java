@@ -10,9 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 
 @Service
 public class UserService implements IUserService {
@@ -43,20 +41,34 @@ public class UserService implements IUserService {
     @Override
     public User getUserById(String userId) {
         User user = userRepository.findById(userId).orElseThrow(() -> new ResourceNotFoundException(NO_USER_FOUND_FOR_ID + userId));
-        //Fetch user rating from the Rating Service
-        //ratings/users/{userId}
         List<Rating> response = restTemplate.getForObject(USER_RATING_ENDPOINT + userId, ArrayList.class);
         user.setRatings(response);
         return user;
     }
 
     @Override
-    public User deleteUser(String userId) {
-        return null;
+    public void deleteUser(String userId) {
+        if (userRepository.findById(userId).isEmpty()) {
+            throw new ResourceNotFoundException(NO_USER_FOUND_FOR_ID + userId);
+        }
+        userRepository.deleteById(userId);
     }
 
     @Override
     public User updateUser(String userId, User user) {
-        return null;
+        Optional<User> repoUserOptional = userRepository.findById(userId);
+        if (repoUserOptional.isEmpty()) {
+            throw new ResourceNotFoundException(NO_USER_FOUND_FOR_ID + userId);
+        }
+        User repoUser = repoUserOptional.get();
+        updateUser(repoUser, user);
+        return userRepository.save(repoUser);
+    }
+
+    private void updateUser(User existingUser, User updatedValue) {
+        existingUser.setRatings(Objects.nonNull(updatedValue.getRatings()) ? updatedValue.getRatings() : existingUser.getRatings());
+        existingUser.setAbout(Objects.nonNull(updatedValue.getAbout()) ? updatedValue.getAbout() : existingUser.getAbout());
+        existingUser.setName(Objects.nonNull(updatedValue.getName()) ? updatedValue.getName() : existingUser.getName());
+        existingUser.setEmail(Objects.nonNull(updatedValue.getEmail()) ? updatedValue.getEmail() : existingUser.getEmail());
     }
 }

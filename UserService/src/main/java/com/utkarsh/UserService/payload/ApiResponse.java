@@ -8,6 +8,9 @@ public class ApiResponse {
     private boolean success;
     private HttpStatus status;
 
+    public ApiResponse() {
+    }
+
     public ApiResponse(Builder builder) {
         this.message = builder.message;
         this.status = builder.status;
