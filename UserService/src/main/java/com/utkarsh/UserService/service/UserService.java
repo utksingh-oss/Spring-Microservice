@@ -53,13 +53,11 @@ public class UserService implements IUserService {
         ArrayList response = restTemplate.getForObject(USER_SERVICE_HOST + USER_RATING_ENDPOINT + userId, ArrayList.class);
         List<Rating> userRatings = response.stream().map(res -> TypeConverter.convertLinkedHashMapToRating((LinkedHashMap<String, Object>) res)).toList();
         List<Rating> updatedUserRatings = userRatings.stream().map(rating -> {
-//            ResponseEntity<Hotel> forEntity = restTemplate.getForEntity(HOTEL_SERVICE_HOST + HOTEL_ENDPOINT + rating.getHotelId(), Hotel.class);
-//            Hotel hotel = forEntity.getBody();
             Hotel hotel = hotelService.getHotel(rating.getHotelId());
             rating.setHotel(hotel);
             return rating;
         }).toList();
-        user.setRatings(userRatings);
+        user.setRatings(updatedUserRatings);
         return user;
     }
 

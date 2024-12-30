@@ -3,6 +3,9 @@ package com.utkarsh.UserService.controller;
 import com.utkarsh.UserService.entity.User;
 import com.utkarsh.UserService.payload.ApiResponse;
 import com.utkarsh.UserService.service.UserService;
+import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
+import io.github.resilience4j.ratelimiter.annotation.RateLimiter;
+import io.github.resilience4j.retry.annotation.Retry;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,9 +33,23 @@ public class UserController {
     }
 
     @GetMapping("/{userId}")
+    @RateLimiter(name = "userRateLimiter", fallbackMethod = "ratingHotelFallback")
+    @CircuitBreaker(name = "ratingHotelBreaker", fallbackMethod = "ratingHotelFallback")
+    @Retry(name = "ratingHotelService", fallbackMethod = "ratingHotelFallback")
     public ResponseEntity<User> getSingleUser(@PathVariable(name = "userId") String userId) {
         LOGGER.info("getting user info for userId: {}", userId);
         return ResponseEntity.status(HttpStatus.OK).body(userService.getUserById(userId));
+    }
+
+    //fallback method for circuit breaker: should have same return type and should take param in the original method
+    public ResponseEntity<User> ratingHotelFallback(String userId, Exception ex) {
+        LOGGER.info("Fallback is executed because service is down: {}", ex.getMessage());
+        User user = new User();
+        user.setName("dummy-user");
+        user.setRatings(List.of());
+        user.setAbout("Dummy-user created because some service is down");
+        user.setUserId("random-string");
+        return new ResponseEntity<>(user, HttpStatus.OK);
     }
 
     @GetMapping
