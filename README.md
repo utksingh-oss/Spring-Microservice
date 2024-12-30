@@ -66,3 +66,9 @@
 	- Request per second (RPS)
 	- Request per minute (RPM)
 	- Request per hour	 (RPH)
+
+ 
+## Microservice Security Using JWT
+- A centralized server for security
+- Each request will be validated by this service
+- In order to make sure the services are secured we need to ensure that direct access to these services is not permitted.
