@@ -58,4 +58,11 @@
 ## Retry Mechanism
 - Retrying the API calls a few times if a request fails on the first time
 
-
+## Rate Limiter
+- The functionality allows limited access to some service
+- Rate Limiter make services highly available by limiting the number of calls we could process in specific window
+- Can prevent DDoS Attacks
+- Three ways to limit call:
+	- Request per second (RPS)
+	- Request per minute (RPM)
+	- Request per hour	 (RPH)
